@@ -185,11 +185,13 @@ Compose timers are lifecycle-safe by construction:
 
 - Timer work runs inside `LaunchedEffect`.
 - The timer loop is cancelled when the composable leaves composition.
+- Timer state is saved with `rememberSaveable`, so Activity recreation from orientation changes does not restart an active timer.
 - `rememberUpdatedState` is used internally so callbacks do not become stale after recomposition.
 - No unmanaged global coroutine is launched.
-- If the composable is removed while running or paused, the state is cancelled.
 
-You do not need to manually clear the Compose timer when the screen is destroyed. Removing the composable is enough.
+You do not need to manually clear the Compose timer when the screen is destroyed. Removing the composable cancels the running coroutine. On configuration changes, such as rotation, the state restores from a saved monotonic timestamp and continues from the correct elapsed time.
+
+This does not replace business-level persistence. If the app process is killed or the countdown is security-sensitive, store the authoritative timestamp in your ViewModel, repository, or backend policy.
 
 ## Should I Put TimerButtonState In A ViewModel?
 
@@ -198,7 +200,7 @@ Usually, no. `TimerButtonState` is UI state and is designed to be remembered ins
 Use local Compose state when:
 
 - The timer only affects this button.
-- The timer should cancel when the screen leaves composition.
+- The timer only needs to survive normal recomposition and configuration changes.
 - The timer is purely presentational, such as progress fill and remaining text.
 
 Use a ViewModel for business-level timing when:
@@ -447,6 +449,7 @@ The timer engine is unit-tested with a fake clock for:
 - reset
 - restart
 - progress clamping
+- restore after Activity recreation/configuration change
 - multiple independent timer instances
 
 ## Demo App
@@ -473,7 +476,7 @@ For simple UI countdowns, use `TimerButton` directly.
 
 For important app rules, such as OTP retry windows, do not rely only on a visual timer. Store the real cooldown timestamp in your domain layer or ViewModel, validate it against server policy, and use TimerButton to present the countdown.
 
-For Compose screens, prefer `rememberTimerButtonState` unless the timer must survive the screen leaving composition.
+For Compose screens, prefer `rememberTimerButtonState` for UI-level timers. It survives recomposition and configuration changes. Use your ViewModel or domain layer for timers that must survive navigation away from the screen, process death, or server-enforced cooldown rules.
 
 For XML screens, avoid retaining listener objects longer than the view lifecycle. Call `release()` in `onDestroyView` if your Fragment binding pattern benefits from explicit cleanup.
 

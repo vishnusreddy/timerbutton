@@ -129,5 +129,22 @@ class TimerButtonEngineTest {
         assertEquals(1f, first.progress)
         assertEquals(0.5f, second.progress)
     }
-}
 
+    @Test
+    fun restoredRunningTimerContinuesFromOriginalStartTime() {
+        val clock = FakeClock()
+        val engine = TimerButtonEngine(1_000L, clock)
+
+        engine.start()
+        clock.advance(400L)
+        val snapshot = engine.snapshot()
+        clock.advance(100L)
+
+        val restored = TimerButtonEngine(1_000L, clock)
+        restored.restore(snapshot)
+
+        assertEquals(TimerButtonStatus.Running, restored.status)
+        assertEquals(500L, restored.elapsedMillis)
+        assertEquals(500L, restored.remainingMillis)
+    }
+}

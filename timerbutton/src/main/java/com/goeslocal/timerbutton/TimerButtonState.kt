@@ -61,6 +61,15 @@ class TimerButtonState internal constructor(
         sync()
     }
 
+    internal fun snapshot(): TimerButtonEngineSnapshot = engine.snapshot().also {
+        sync()
+    }
+
+    internal fun restore(snapshot: TimerButtonEngineSnapshot) {
+        engine.restore(snapshot)
+        sync()
+    }
+
     /**
      * Starts the timer from zero.
      */

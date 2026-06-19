@@ -33,6 +33,35 @@ class TimerButtonEngine(
     private var pausedAtElapsedMillis = 0L
     private var completionDelivered = false
 
+    internal fun snapshot(): TimerButtonEngineSnapshot {
+        tick()
+        return TimerButtonEngineSnapshot(
+            durationMillis = durationMillis,
+            status = status,
+            elapsedMillis = elapsedMillis,
+            startedAtMillis = startedAtMillis,
+            pausedAtElapsedMillis = pausedAtElapsedMillis,
+            completionDelivered = completionDelivered,
+        )
+    }
+
+    internal fun restore(snapshot: TimerButtonEngineSnapshot) {
+        durationMillis = snapshot.durationMillis.coerceAtLeast(1L)
+        startedAtMillis = snapshot.startedAtMillis
+        pausedAtElapsedMillis = snapshot.pausedAtElapsedMillis.coerceIn(0L, durationMillis)
+        completionDelivered = snapshot.completionDelivered
+        status = snapshot.status
+        elapsedMillis = snapshot.elapsedMillis.coerceIn(0L, durationMillis)
+
+        if (status == TimerButtonStatus.Running) {
+            tick()
+        }
+        if (elapsedMillis >= durationMillis) {
+            elapsedMillis = durationMillis
+            status = TimerButtonStatus.Completed
+        }
+    }
+
     fun setDuration(durationMillis: Long) {
         this.durationMillis = durationMillis.coerceAtLeast(1L)
         if (status == TimerButtonStatus.Idle || status == TimerButtonStatus.Cancelled) {
@@ -109,3 +138,11 @@ class TimerButtonEngine(
     }
 }
 
+internal data class TimerButtonEngineSnapshot(
+    val durationMillis: Long,
+    val status: TimerButtonStatus,
+    val elapsedMillis: Long,
+    val startedAtMillis: Long,
+    val pausedAtElapsedMillis: Long,
+    val completionDelivered: Boolean,
+)

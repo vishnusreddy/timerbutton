@@ -3,6 +3,7 @@ package com.goeslocal.timerbutton
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,18 +18,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -46,7 +47,35 @@ import kotlinx.coroutines.delay
  */
 @Composable
 fun rememberTimerButtonState(durationMillis: Long = 10_000L): TimerButtonState {
-    val state = remember { TimerButtonState(durationMillis) }
+    val state = rememberSaveable(
+        saver = listSaver(
+            save = { state ->
+                val snapshot = state.snapshot()
+                listOf(
+                    snapshot.durationMillis,
+                    snapshot.status.ordinal,
+                    snapshot.elapsedMillis,
+                    snapshot.startedAtMillis,
+                    snapshot.pausedAtElapsedMillis,
+                    snapshot.completionDelivered,
+                )
+            },
+            restore = { saved ->
+                TimerButtonState(saved[0] as Long).apply {
+                    restore(
+                        TimerButtonEngineSnapshot(
+                            durationMillis = saved[0] as Long,
+                            status = TimerButtonStatus.entries[saved[1] as Int],
+                            elapsedMillis = saved[2] as Long,
+                            startedAtMillis = saved[3] as Long,
+                            pausedAtElapsedMillis = saved[4] as Long,
+                            completionDelivered = saved[5] as Boolean,
+                        ),
+                    )
+                }
+            },
+        ),
+    ) { TimerButtonState(durationMillis) }
     LaunchedEffect(durationMillis) {
         state.setDuration(durationMillis)
     }
@@ -179,42 +208,34 @@ fun TimerButton(
             delay(16L)
         }
     }
-    DisposableEffect(state) {
-        onDispose {
-            if (state.isRunning || state.isPaused) {
-                state.cancel()
-            }
-        }
-    }
-
     val displayText = textFormatter?.invoke(state, text) ?: text
     val buttonEnabled = enabled && (config.allowClickWhileRunning || !state.isRunning)
     val baseContainerColor = if (buttonEnabled) colors.containerColor else colors.disabledContainerColor
     val contentColor = if (buttonEnabled) colors.contentColor else colors.disabledContentColor
 
-    Surface(
-        onClick = {
-            if (config.clickStartsTimer) {
-                when (state.timerState) {
-                    TimerButtonStatus.Running -> Unit
-                    TimerButtonStatus.Paused -> state.resume()
-                    TimerButtonStatus.Idle,
-                    TimerButtonStatus.Cancelled,
-                    TimerButtonStatus.Completed -> state.start()
-                }
-            }
-            clickCallback()
-        },
-        enabled = buttonEnabled,
-        shape = shape,
-        color = baseContainerColor,
-        contentColor = contentColor,
-        shadowElevation = if (buttonEnabled) elevation else 0.dp,
-        border = border,
+    Box(
         modifier = modifier
+            .shadow(if (buttonEnabled) elevation else 0.dp, shape)
+            .clip(shape)
+            .background(baseContainerColor)
+            .then(if (border != null) Modifier.border(border, shape) else Modifier)
+            .clickable(
+                enabled = buttonEnabled,
+                role = Role.Button,
+            ) {
+                if (config.clickStartsTimer) {
+                    when (state.timerState) {
+                        TimerButtonStatus.Running -> Unit
+                        TimerButtonStatus.Paused -> state.resume()
+                        TimerButtonStatus.Idle,
+                        TimerButtonStatus.Cancelled,
+                        TimerButtonStatus.Completed -> state.start()
+                    }
+                }
+                clickCallback()
+            }
             .semantics {
                 progressBarRangeInfo = ProgressBarRangeInfo(state.progress, 0f..1f)
-                role = Role.Button
             },
     ) {
         Box(propagateMinConstraints = true) {
@@ -242,7 +263,7 @@ fun TimerButton(
                     leadingIcon()
                     Box(Modifier.width(8.dp))
                 }
-                Text(displayText, style = textStyle)
+                Text(displayText, style = textStyle, color = contentColor)
             }
         }
     }
