@@ -7,14 +7,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -30,7 +33,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -184,72 +189,61 @@ fun TimerButton(
 
     val displayText = textFormatter?.invoke(state, text) ?: text
     val buttonEnabled = enabled && (config.allowClickWhileRunning || !state.isRunning)
-    val baseContainerColor = if (enabled) colors.containerColor else colors.disabledContainerColor
-    val materialColors = ButtonDefaults.buttonColors(
-        containerColor = Color.Transparent,
-        contentColor = colors.contentColor,
-        disabledContainerColor = Color.Transparent,
-        disabledContentColor = colors.disabledContentColor,
-    )
+    val baseContainerColor = if (buttonEnabled) colors.containerColor else colors.disabledContainerColor
+    val contentColor = if (buttonEnabled) colors.contentColor else colors.disabledContentColor
 
-    Box(
+    Surface(
+        onClick = {
+            if (config.clickStartsTimer) {
+                when (state.timerState) {
+                    TimerButtonStatus.Running -> Unit
+                    TimerButtonStatus.Paused -> state.resume()
+                    TimerButtonStatus.Idle,
+                    TimerButtonStatus.Cancelled,
+                    TimerButtonStatus.Completed -> state.start()
+                }
+            }
+            clickCallback()
+        },
+        enabled = buttonEnabled,
+        shape = shape,
+        color = baseContainerColor,
+        contentColor = contentColor,
+        shadowElevation = if (buttonEnabled) elevation else 0.dp,
+        border = border,
         modifier = modifier
-            .clip(shape)
-            .background(baseContainerColor)
             .semantics {
                 progressBarRangeInfo = ProgressBarRangeInfo(state.progress, 0f..1f)
+                role = Role.Button
             },
-        propagateMinConstraints = true,
     ) {
-        if (config.progressMode == TimerProgressMode.Background && state.progress > 0f) {
-            ProgressLayer(
-                progress = state.progress,
-                direction = config.progressDirection,
-                mode = config.progressMode,
-                shape = shape,
-                colors = colors,
-                alpha = progressAlpha,
-            )
-        }
+        Box(propagateMinConstraints = true) {
+            if (state.progress > 0f) {
+                ProgressLayer(
+                    progress = state.progress,
+                    direction = config.progressDirection,
+                    mode = config.progressMode,
+                    shape = shape,
+                    colors = colors,
+                    alpha = progressAlpha,
+                )
+            }
 
-        Button(
-            onClick = {
-                if (config.clickStartsTimer) {
-                    when (state.timerState) {
-                        TimerButtonStatus.Running -> Unit
-                        TimerButtonStatus.Paused -> state.resume()
-                        TimerButtonStatus.Idle,
-                        TimerButtonStatus.Cancelled,
-                        TimerButtonStatus.Completed -> state.start()
-                    }
-                }
-                clickCallback()
-            },
-            enabled = buttonEnabled,
-            shape = shape,
-            colors = materialColors,
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = elevation),
-            border = border,
-            contentPadding = contentPadding,
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier
+                    .defaultMinSize(
+                        minWidth = ButtonDefaults.MinWidth,
+                        minHeight = ButtonDefaults.MinHeight,
+                    )
+                    .padding(contentPadding),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 if (leadingIcon != null) {
                     leadingIcon()
                     Box(Modifier.width(8.dp))
                 }
                 Text(displayText, style = textStyle)
             }
-        }
-
-        if (config.progressMode != TimerProgressMode.Background && state.progress > 0f) {
-            ProgressLayer(
-                progress = state.progress,
-                direction = config.progressDirection,
-                mode = config.progressMode,
-                shape = shape,
-                colors = colors,
-                alpha = progressAlpha,
-            )
         }
     }
 }
