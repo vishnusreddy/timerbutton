@@ -14,15 +14,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -81,23 +84,30 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
 
         item {
             DemoSection("Basic, Auto-start, OTP, Download") {
-                TimerButton(
-                    text = "Basic timer",
-                    durationMillis = 4_000L,
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                    onTimerComplete = { lastEvent = "Basic timer completed" },
-                )
-                TimerButton(
-                    text = "Auto-start",
-                    durationMillis = 5_000L,
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                    config = TimerButtonConfig(durationMillis = 5_000L, autoStart = true),
-                    textFormatter = { state, label -> if (state.isRunning) "${state.remainingMillis / 1000 + 1}s left" else label },
-                )
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    TimerButton(
+                        text = "Natural size",
+                        durationMillis = 4_000L,
+                        onTimerComplete = { lastEvent = "Basic timer completed" },
+                    )
+                    TimerButton(
+                        text = "Auto-start",
+                        durationMillis = 5_000L,
+                        modifier = Modifier.width(168.dp).height(44.dp),
+                        config = TimerButtonConfig(durationMillis = 5_000L, autoStart = true),
+                        textFormatter = { state, label -> if (state.isRunning) "${state.remainingMillis / 1000 + 1}s left" else label },
+                    )
+                    TimerButton(
+                        text = "Disabled",
+                        durationMillis = 4_000L,
+                        enabled = false,
+                        modifier = Modifier.width(128.dp).height(48.dp),
+                    )
+                }
                 TimerButton(
                     text = "Resend OTP",
                     durationMillis = 6_000L,
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    modifier = Modifier.width(220.dp).height(56.dp),
                     textFormatter = { state, label ->
                         if (state.isRunning) "Resend in ${(state.remainingMillis + 999) / 1000}s" else label
                     },
@@ -105,7 +115,7 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
                 TimerButton(
                     text = "Download",
                     durationMillis = 5_000L,
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    modifier = Modifier.width(260.dp).height(64.dp),
                     leadingIcon = {
                         Box(
                             modifier = Modifier
@@ -118,10 +128,48 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
                     },
                 )
                 TimerButton(
-                    text = "Disabled",
-                    durationMillis = 4_000L,
-                    enabled = false,
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    text = "Full-width CTA when you actually want one",
+                    durationMillis = 7_000L,
+                    modifier = Modifier.fillMaxWidth().height(54.dp),
+                )
+            }
+        }
+
+        item {
+            DemoSection("Sizing and Shape Gallery") {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    TimerButton(
+                        text = "Compact",
+                        durationMillis = 3_500L,
+                        modifier = Modifier.width(116.dp).height(36.dp),
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                    TimerButton(
+                        text = "Tall",
+                        durationMillis = 4_500L,
+                        modifier = Modifier.width(132.dp).height(76.dp),
+                        shape = RoundedCornerShape(18.dp),
+                    )
+                    TimerButton(
+                        text = "Pill",
+                        durationMillis = 5_000L,
+                        modifier = Modifier.width(156.dp).height(48.dp),
+                        shape = RoundedCornerShape(50),
+                    )
+                    TimerButton(
+                        text = "Square-ish",
+                        durationMillis = 4_000L,
+                        modifier = Modifier.size(92.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        contentPadding = PaddingValues(6.dp),
+                    )
+                }
+                TimerButton(
+                    text = "Wide but shorter",
+                    durationMillis = 5_000L,
+                    modifier = Modifier.width(300.dp).height(42.dp),
+                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 6.dp),
                 )
             }
         }
@@ -167,21 +215,27 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
 
         item {
             DemoSection("Directions and Modes") {
-                TimerProgressDirection.entries.forEach { direction ->
-                    TimerButton(
-                        text = direction.name,
-                        durationMillis = 4_000L,
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        config = TimerButtonConfig(durationMillis = 4_000L, progressDirection = direction),
-                    )
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    TimerProgressDirection.entries.forEachIndexed { index, direction ->
+                        TimerButton(
+                            text = direction.name,
+                            durationMillis = 4_000L,
+                            modifier = Modifier
+                                .width(if (index % 2 == 0) 190.dp else 230.dp)
+                                .height(if (direction.name.contains("Top") || direction.name.contains("Bottom")) 72.dp else 48.dp),
+                            config = TimerButtonConfig(durationMillis = 4_000L, progressDirection = direction),
+                        )
+                    }
                 }
-                TimerProgressMode.entries.forEach { mode ->
-                    TimerButton(
-                        text = "${mode.name} mode",
-                        durationMillis = 4_000L,
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        config = TimerButtonConfig(durationMillis = 4_000L, progressMode = mode),
-                    )
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    TimerProgressMode.entries.forEach { mode ->
+                        TimerButton(
+                            text = "${mode.name} mode",
+                            durationMillis = 4_000L,
+                            modifier = Modifier.width(190.dp).height(50.dp),
+                            config = TimerButtonConfig(durationMillis = 4_000L, progressMode = mode),
+                        )
+                    }
                 }
             }
         }
@@ -191,7 +245,7 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
                 TimerButton(
                     text = "Custom colors",
                     durationMillis = 5_000L,
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    modifier = Modifier.width(248.dp).height(56.dp),
                     colors = TimerButtonColors(
                         containerColor = Color(0xFF0B6E4F),
                         contentColor = Color.White,
@@ -203,13 +257,13 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
                 TimerButton(
                     text = "Rounded button",
                     durationMillis = 5_000L,
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    modifier = Modifier.width(220.dp).height(56.dp),
                     shape = RoundedCornerShape(28.dp),
                 )
                 TimerButton(
                     text = "Outlined button",
                     durationMillis = 5_000L,
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    modifier = Modifier.width(210.dp).height(48.dp),
                     colors = TimerButtonColors(
                         containerColor = Color.Transparent,
                         contentColor = MaterialTheme.colorScheme.primary,
@@ -220,14 +274,28 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                     progressAlpha = 0.12f,
                 )
+                TimerButton(
+                    text = "Text padding",
+                    durationMillis = 5_000L,
+                    modifier = Modifier.width(176.dp).height(44.dp),
+                    contentPadding = PaddingValues(horizontal = 28.dp, vertical = 6.dp),
+                    colors = TimerButtonDefaults.colors().copy(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        progressColor = MaterialTheme.colorScheme.secondary,
+                    ),
+                    elevation = 0.dp,
+                )
             }
         }
 
         item {
             DemoSection("Multiple Timers") {
-                TimerButton("First timer", 3_000L, Modifier.fillMaxWidth().height(48.dp))
-                TimerButton("Second timer", 5_000L, Modifier.fillMaxWidth().height(48.dp))
-                TimerButton("Third timer", 7_000L, Modifier.fillMaxWidth().height(48.dp))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    TimerButton("First timer", 3_000L, Modifier.width(152.dp).height(48.dp))
+                    TimerButton("Second timer", 5_000L, Modifier.width(216.dp).height(56.dp))
+                    TimerButton("Third timer", 7_000L, Modifier.width(180.dp).height(68.dp))
+                }
             }
         }
 

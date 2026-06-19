@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -27,6 +26,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -184,24 +184,34 @@ fun TimerButton(
 
     val displayText = textFormatter?.invoke(state, text) ?: text
     val buttonEnabled = enabled && (config.allowClickWhileRunning || !state.isRunning)
+    val baseContainerColor = if (enabled) colors.containerColor else colors.disabledContainerColor
     val materialColors = ButtonDefaults.buttonColors(
-        containerColor = if (config.progressMode == TimerProgressMode.Background && state.progress > 0f) {
-            colors.progressColor.copy(alpha = progressAlpha)
-        } else {
-            colors.containerColor
-        },
+        containerColor = Color.Transparent,
         contentColor = colors.contentColor,
-        disabledContainerColor = colors.disabledContainerColor,
+        disabledContainerColor = Color.Transparent,
         disabledContentColor = colors.disabledContentColor,
     )
 
     Box(
         modifier = modifier
             .clip(shape)
+            .background(baseContainerColor)
             .semantics {
                 progressBarRangeInfo = ProgressBarRangeInfo(state.progress, 0f..1f)
             },
+        propagateMinConstraints = true,
     ) {
+        if (config.progressMode == TimerProgressMode.Background && state.progress > 0f) {
+            ProgressLayer(
+                progress = state.progress,
+                direction = config.progressDirection,
+                mode = config.progressMode,
+                shape = shape,
+                colors = colors,
+                alpha = progressAlpha,
+            )
+        }
+
         Button(
             onClick = {
                 if (config.clickStartsTimer) {
@@ -221,7 +231,6 @@ fun TimerButton(
             elevation = ButtonDefaults.buttonElevation(defaultElevation = elevation),
             border = border,
             contentPadding = contentPadding,
-            modifier = Modifier.fillMaxSize(),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (leadingIcon != null) {
@@ -288,24 +297,41 @@ private fun BoxScope.ProgressLayer(
             .fillMaxWidth()
             .fillMaxHeight(normalized)
     }
-    val heightModifier = if (mode == TimerProgressMode.Underline) {
-        Modifier.height(4.dp).align(Alignment.BottomCenter)
-    } else {
-        Modifier.fillMaxSize()
-    }
 
-    Box(heightModifier.clip(shape)) {
-        Box(
-            modifier = progressModifier
-                .align(align)
-                .background(colors.progressColor.copy(alpha = alpha))
-                .then(
-                    if (colors.borderColor != androidx.compose.ui.graphics.Color.Transparent) {
-                        Modifier.border(1.dp, colors.borderColor, shape)
-                    } else {
-                        Modifier
-                    },
-                ),
-        )
+    Box(Modifier.matchParentSize().clip(shape)) {
+        if (mode == TimerProgressMode.Underline) {
+            val underlineModifier = when (direction) {
+                TimerProgressDirection.LeftToRight -> Modifier
+                    .align(Alignment.BottomStart)
+                    .height(4.dp)
+                    .fillMaxWidth(normalized)
+                TimerProgressDirection.RightToLeft -> Modifier
+                    .align(Alignment.BottomEnd)
+                    .height(4.dp)
+                    .fillMaxWidth(normalized)
+                TimerProgressDirection.TopToBottom -> Modifier
+                    .align(Alignment.TopCenter)
+                    .width(4.dp)
+                    .fillMaxHeight(normalized)
+                TimerProgressDirection.BottomToTop -> Modifier
+                    .align(Alignment.BottomCenter)
+                    .width(4.dp)
+                    .fillMaxHeight(normalized)
+            }
+            Box(underlineModifier.background(colors.progressColor.copy(alpha = alpha)))
+        } else {
+            Box(
+                modifier = progressModifier
+                    .align(align)
+                    .background(colors.progressColor.copy(alpha = alpha))
+                    .then(
+                        if (colors.borderColor != Color.Transparent) {
+                            Modifier.border(1.dp, colors.borderColor, shape)
+                        } else {
+                            Modifier
+                        },
+                    ),
+            )
+        }
     }
 }
