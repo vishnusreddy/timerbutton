@@ -9,6 +9,27 @@ The library supports both UI stacks:
 
 The demo app in `:app` showcases Compose and XML usage. The reusable implementation lives in `:timerbutton`.
 
+## Demo Media
+
+Captured from the sample app running on a physical Android device.
+
+[Watch the short demo video](docs/media/timerbutton-demo.mp4)
+
+<table>
+  <tr>
+    <td><img src="docs/media/timerbutton-showcase.png" alt="TimerButton showcase screen" width="260"></td>
+    <td><img src="docs/media/timerbutton-controls.png" alt="TimerButton sizing and controls" width="260"></td>
+    <td><img src="docs/media/timerbutton-modes.png" alt="TimerButton directions and modes" width="260"></td>
+  </tr>
+  <tr>
+    <td>Showcase</td>
+    <td>Sizing and Controls</td>
+    <td>Directions and Modes</td>
+  </tr>
+</table>
+
+<img src="docs/media/timerbutton-custom-xml.png" alt="TimerButton custom styles and XML example" width="320">
+
 ## Why Use This
 
 Timer flows are easy to get subtly wrong. A button that owns a countdown needs to avoid UI-thread drift, double completion callbacks, leaks from long-running timers, stale Compose lambdas, and awkward state cleanup.

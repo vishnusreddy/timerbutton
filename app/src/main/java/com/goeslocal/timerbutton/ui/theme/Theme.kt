@@ -9,18 +9,37 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Sapphire80,
+    secondary = Slate80,
+    tertiary = Teal80,
+    background = DemoDarkBackground,
+    surface = DemoDarkBackground,
+    surfaceContainer = DemoDarkSurface,
+    onPrimary = Color(0xFF07122A),
+    onSecondary = Color(0xFF111827),
+    onTertiary = Color(0xFF06201D),
+    onBackground = Color(0xFFEAF0FF),
+    onSurface = Color(0xFFEAF0FF),
+    onSurfaceVariant = Color(0xFFB7C2D8),
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = Sapphire40,
+    secondary = Slate40,
+    tertiary = Teal40,
+    background = DemoLightBackground,
+    surface = DemoLightBackground,
+    surfaceContainer = DemoLightSurface,
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = Color(0xFF111827),
+    onSurface = Color(0xFF111827),
+    onSurfaceVariant = Color(0xFF4B5565),
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -37,7 +56,7 @@ private val LightColorScheme = lightColorScheme(
 fun TimerbuttonTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

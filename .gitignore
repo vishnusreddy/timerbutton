@@ -12,6 +12,7 @@
 /build
 **/build/
 /captures
+artifacts/
 .externalNativeBuild
 .cxx
 local.properties
