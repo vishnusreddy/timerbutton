@@ -1,0 +1,111 @@
+package com.goeslocal.timerbutton
+
+/**
+ * Monotonic clock abstraction used by [TimerButtonEngine].
+ */
+fun interface TimerClock {
+    fun nowMillis(): Long
+}
+
+/**
+ * Testable timer state machine based on elapsed real time instead of decrementing ticks.
+ */
+class TimerButtonEngine(
+    durationMillis: Long,
+    private val clock: TimerClock,
+) {
+    var durationMillis: Long = durationMillis.coerceAtLeast(1L)
+        private set
+
+    var status: TimerButtonStatus = TimerButtonStatus.Idle
+        private set
+
+    var elapsedMillis: Long = 0L
+        private set
+
+    val remainingMillis: Long
+        get() = (durationMillis - elapsedMillis).coerceIn(0L, durationMillis)
+
+    val progress: Float
+        get() = (elapsedMillis.toFloat() / durationMillis.toFloat()).coerceIn(0f, 1f)
+
+    private var startedAtMillis = 0L
+    private var pausedAtElapsedMillis = 0L
+    private var completionDelivered = false
+
+    fun setDuration(durationMillis: Long) {
+        this.durationMillis = durationMillis.coerceAtLeast(1L)
+        if (status == TimerButtonStatus.Idle || status == TimerButtonStatus.Cancelled) {
+            elapsedMillis = 0L
+            completionDelivered = false
+        } else {
+            tick()
+        }
+    }
+
+    fun start(): Boolean {
+        if (status == TimerButtonStatus.Running) return false
+        elapsedMillis = 0L
+        pausedAtElapsedMillis = 0L
+        startedAtMillis = clock.nowMillis()
+        completionDelivered = false
+        status = TimerButtonStatus.Running
+        return true
+    }
+
+    fun pause(): Boolean {
+        if (status != TimerButtonStatus.Running) return false
+        tick()
+        pausedAtElapsedMillis = elapsedMillis
+        status = TimerButtonStatus.Paused
+        return true
+    }
+
+    fun resume(): Boolean {
+        if (status != TimerButtonStatus.Paused) return false
+        startedAtMillis = clock.nowMillis() - pausedAtElapsedMillis
+        status = TimerButtonStatus.Running
+        return true
+    }
+
+    fun cancel(): Boolean {
+        if (status != TimerButtonStatus.Running && status != TimerButtonStatus.Paused) return false
+        tick()
+        status = TimerButtonStatus.Cancelled
+        return true
+    }
+
+    fun reset(): Boolean {
+        val changed = status != TimerButtonStatus.Idle || elapsedMillis != 0L
+        elapsedMillis = 0L
+        pausedAtElapsedMillis = 0L
+        completionDelivered = false
+        status = TimerButtonStatus.Idle
+        return changed
+    }
+
+    fun restart(): Boolean {
+        elapsedMillis = 0L
+        pausedAtElapsedMillis = 0L
+        startedAtMillis = clock.nowMillis()
+        completionDelivered = false
+        status = TimerButtonStatus.Running
+        return true
+    }
+
+    fun tick(): Boolean {
+        if (status != TimerButtonStatus.Running) return false
+        elapsedMillis = (clock.nowMillis() - startedAtMillis).coerceIn(0L, durationMillis)
+        if (elapsedMillis >= durationMillis) {
+            status = TimerButtonStatus.Completed
+        }
+        return true
+    }
+
+    fun consumeCompletion(): Boolean {
+        if (status != TimerButtonStatus.Completed || completionDelivered) return false
+        completionDelivered = true
+        return true
+    }
+}
+

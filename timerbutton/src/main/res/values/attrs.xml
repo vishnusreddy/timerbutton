@@ -1,0 +1,31 @@
+<resources>
+    <declare-styleable name="TimerButtonView">
+        <attr name="timerDuration" format="integer" />
+        <attr name="timerProgressColor" format="color" />
+        <attr name="timerProgressAlpha" format="float" />
+        <attr name="timerProgressDirection">
+            <enum name="leftToRight" value="0" />
+            <enum name="rightToLeft" value="1" />
+            <enum name="topToBottom" value="2" />
+            <enum name="bottomToTop" value="3" />
+        </attr>
+        <attr name="timerProgressMode">
+            <enum name="overlay" value="0" />
+            <enum name="background" value="1" />
+            <enum name="underline" value="2" />
+        </attr>
+        <attr name="timerAutoStart" format="boolean" />
+        <attr name="timerClickStartsTimer" format="boolean" />
+        <attr name="timerAllowClickWhileRunning" format="boolean" />
+        <attr name="timerTextIdle" format="string" />
+        <attr name="timerTextRunning" format="string" />
+        <attr name="timerTextCompleted" format="string" />
+        <attr name="timerCornerRadius" format="dimension" />
+        <attr name="timerStrokeColor" format="color" />
+        <attr name="timerStrokeWidth" format="dimension" />
+        <attr name="timerButtonBackgroundColor" format="color" />
+        <attr name="timerButtonDisabledColor" format="color" />
+        <attr name="timerTextColor" format="color" />
+    </declare-styleable>
+</resources>
+

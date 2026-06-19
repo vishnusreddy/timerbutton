@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <com.goeslocal.timerbutton.TimerButtonView
+        android:id="@+id/xmlTimerButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="XML Resend OTP"
+        android:textStyle="bold"
+        app:timerButtonBackgroundColor="#6750A4"
+        app:timerCornerRadius="18dp"
+        app:timerDuration="6000"
+        app:timerProgressAlpha="0.45"
+        app:timerProgressColor="#FFD166"
+        app:timerProgressDirection="leftToRight"
+        app:timerProgressMode="overlay"
+        app:timerTextCompleted="XML Complete"
+        app:timerTextIdle="XML Resend OTP"
+        app:timerTextRunning="XML wait %ss"
+        app:timerTextColor="#FFFFFF" />
+
+</LinearLayout>
