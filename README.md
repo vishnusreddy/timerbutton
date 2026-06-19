@@ -11,24 +11,26 @@ The demo app in `:app` showcases Compose and XML usage. The reusable implementat
 
 ## Demo Media
 
-Captured from the sample app running on a physical Android device.
-
-[Watch the short demo video](docs/media/timerbutton-demo.mp4)
+Animated component crops captured from the sample app running on a physical Android device.
 
 <table>
   <tr>
-    <td><img src="docs/media/timerbutton-showcase.png" alt="TimerButton showcase screen" width="260"></td>
-    <td><img src="docs/media/timerbutton-controls.png" alt="TimerButton sizing and controls" width="260"></td>
-    <td><img src="docs/media/timerbutton-modes.png" alt="TimerButton directions and modes" width="260"></td>
+    <td><img src="docs/media/gifs/primary-progress.gif" alt="Primary TimerButton progress animation" width="360"></td>
+    <td><img src="docs/media/gifs/otp-progress.gif" alt="OTP TimerButton cooldown animation" width="320"></td>
   </tr>
   <tr>
-    <td>Showcase</td>
-    <td>Sizing and Controls</td>
-    <td>Directions and Modes</td>
+    <td>Primary CTA</td>
+    <td>OTP Cooldown</td>
+  </tr>
+  <tr>
+    <td><img src="docs/media/gifs/vertical-progress.gif" alt="Top-to-bottom TimerButton progress animation" width="320"></td>
+    <td><img src="docs/media/components/xml-button.png" alt="XML TimerButton component" width="320"></td>
+  </tr>
+  <tr>
+    <td>Vertical Progress</td>
+    <td>XML View</td>
   </tr>
 </table>
-
-<img src="docs/media/timerbutton-custom-xml.png" alt="TimerButton custom styles and XML example" width="320">
 
 ## Why Use This
 

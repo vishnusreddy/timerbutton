@@ -304,6 +304,7 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
                                 .height(if (direction.name.contains("Top") || direction.name.contains("Bottom")) 72.dp else 48.dp),
                             config = TimerButtonConfig(durationMillis = 4_000L, progressDirection = direction),
                             colors = if (index % 2 == 0) ShowcaseColors.primary() else ShowcaseColors.teal(),
+                            progressAlpha = 0.52f,
                         )
                     }
                 }
@@ -315,6 +316,7 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
                             modifier = Modifier.width(190.dp).height(50.dp),
                             config = TimerButtonConfig(durationMillis = 4_000L, progressMode = mode),
                             colors = ShowcaseColors.slate(),
+                            progressAlpha = if (mode == TimerProgressMode.Underline) 1f else 0.52f,
                         )
                     }
                 }
