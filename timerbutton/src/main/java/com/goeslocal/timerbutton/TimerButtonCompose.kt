@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -209,18 +210,18 @@ fun TimerButton(
         }
     }
     val displayText = textFormatter?.invoke(state, text) ?: text
-    val buttonEnabled = enabled && (config.allowClickWhileRunning || !state.isRunning)
-    val baseContainerColor = if (buttonEnabled) colors.containerColor else colors.disabledContainerColor
-    val contentColor = if (buttonEnabled) colors.contentColor else colors.disabledContentColor
+    val buttonClickable = enabled && (config.allowClickWhileRunning || !state.isRunning)
+    val baseContainerColor = if (enabled) colors.containerColor else colors.disabledContainerColor
+    val contentColor = if (enabled) colors.contentColor else colors.disabledContentColor
 
     Box(
         modifier = modifier
-            .shadow(if (buttonEnabled) elevation else 0.dp, shape)
+            .shadow(if (enabled) elevation else 0.dp, shape)
             .clip(shape)
             .background(baseContainerColor)
             .then(if (border != null) Modifier.border(border, shape) else Modifier)
             .clickable(
-                enabled = buttonEnabled,
+                enabled = buttonClickable,
                 role = Role.Button,
             ) {
                 if (config.clickStartsTimer) {
@@ -237,34 +238,34 @@ fun TimerButton(
             .semantics {
                 progressBarRangeInfo = ProgressBarRangeInfo(state.progress, 0f..1f)
             },
+        propagateMinConstraints = true,
     ) {
-        Box(propagateMinConstraints = true) {
-            if (state.progress > 0f) {
-                ProgressLayer(
-                    progress = state.progress,
-                    direction = config.progressDirection,
-                    mode = config.progressMode,
-                    shape = shape,
-                    colors = colors,
-                    alpha = progressAlpha,
-                )
-            }
+        if (state.progress > 0f) {
+            ProgressLayer(
+                progress = state.progress,
+                direction = config.progressDirection,
+                mode = config.progressMode,
+                shape = shape,
+                colors = colors,
+                alpha = progressAlpha,
+            )
+        }
 
-            Row(
-                modifier = Modifier
-                    .defaultMinSize(
-                        minWidth = ButtonDefaults.MinWidth,
-                        minHeight = ButtonDefaults.MinHeight,
-                    )
-                    .padding(contentPadding),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (leadingIcon != null) {
-                    leadingIcon()
-                    Box(Modifier.width(8.dp))
-                }
-                Text(displayText, style = textStyle, color = contentColor)
+        Row(
+            modifier = Modifier
+                .defaultMinSize(
+                    minWidth = ButtonDefaults.MinWidth,
+                    minHeight = ButtonDefaults.MinHeight,
+                )
+                .padding(contentPadding),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (leadingIcon != null) {
+                leadingIcon()
+                Box(Modifier.width(8.dp))
             }
+            Text(displayText, style = textStyle, color = contentColor)
         }
     }
 }
