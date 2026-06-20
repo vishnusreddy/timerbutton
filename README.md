@@ -11,24 +11,18 @@ The demo app in `:app` showcases Compose and XML usage. The reusable implementat
 
 ## Demo Media
 
-Animated component crops captured from the sample app running on a physical Android device.
+Screenshots captured from the sample app running on a physical Android device, with the visible timers active and the device bars cropped out.
 
 <table>
   <tr>
-    <td><img src="docs/media/gifs/primary-progress.gif" alt="Primary TimerButton progress animation" width="360"></td>
-    <td><img src="docs/media/gifs/otp-progress.gif" alt="OTP TimerButton cooldown animation" width="320"></td>
+    <td><img src="docs/media/screenshots/showcase-running.png" alt="TimerButton showcase screen with multiple running Compose timers" width="280"></td>
+    <td><img src="docs/media/screenshots/directions-running.png" alt="TimerButton directions and progress modes screen with running timers" width="280"></td>
+    <td><img src="docs/media/screenshots/multiple-and-xml-running.png" alt="TimerButton multiple timers and XML view screen with running timers" width="280"></td>
   </tr>
   <tr>
-    <td>Primary CTA</td>
-    <td>OTP Cooldown</td>
-  </tr>
-  <tr>
-    <td><img src="docs/media/gifs/vertical-progress.gif" alt="Top-to-bottom TimerButton progress animation" width="320"></td>
-    <td><img src="docs/media/components/xml-button.png" alt="XML TimerButton component" width="320"></td>
-  </tr>
-  <tr>
-    <td>Vertical Progress</td>
-    <td>XML View</td>
+    <td>Compose Showcase</td>
+    <td>Directions and Modes</td>
+    <td>Multiple Timers and XML</td>
   </tr>
 </table>
 

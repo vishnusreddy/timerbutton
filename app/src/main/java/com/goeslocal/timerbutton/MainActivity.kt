@@ -110,6 +110,9 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
                         colors = ShowcaseColors.amber(),
                         progressAlpha = 0.30f,
                         shape = RoundedCornerShape(14.dp),
+                        textFormatter = { state, label ->
+                            if (state.isRunning) "Sync ${(state.progress * 100).toInt()}%" else label
+                        },
                     )
                 }
 
@@ -123,6 +126,9 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
                     leadingIcon = {
                         DemoIcon("D", Color.White.copy(alpha = 0.18f))
                     },
+                    textFormatter = { state, label ->
+                        if (state.isRunning) "Downloading ${(state.progress * 100).toInt()}%" else label
+                    },
                 )
 
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -133,6 +139,9 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
                         colors = ShowcaseColors.primary(),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                         shape = RoundedCornerShape(10.dp),
+                        textFormatter = { state, label ->
+                            if (state.isRunning) "${(state.progress * 100).toInt()}%" else label
+                        },
                     )
                     TimerButton(
                         text = "Outlined",
@@ -143,6 +152,9 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
                         progressAlpha = 0.18f,
                         shape = RoundedCornerShape(12.dp),
                         elevation = 0.dp,
+                        textFormatter = { state, label ->
+                            if (state.isRunning) "${(state.progress * 100).toInt()}%" else label
+                        },
                     )
                     TimerButton(
                         text = "Pill",
@@ -150,6 +162,9 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
                         modifier = Modifier.width(128.dp).height(42.dp),
                         colors = ShowcaseColors.teal(),
                         shape = RoundedCornerShape(50),
+                        textFormatter = { state, label ->
+                            if (state.isRunning) "${(state.progress * 100).toInt()}%" else label
+                        },
                     )
                 }
             }
@@ -163,6 +178,9 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
                         durationMillis = 4_000L,
                         colors = ShowcaseColors.primary(),
                         onTimerComplete = { lastEvent = "Basic timer completed" },
+                        textFormatter = { state, label ->
+                            if (state.isRunning) "${(state.remainingMillis + 999) / 1000}s left" else label
+                        },
                     )
                     TimerButton(
                         text = "Auto-start",
@@ -197,12 +215,18 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
                     leadingIcon = {
                         DemoIcon("D", Color.White.copy(alpha = 0.18f))
                     },
+                    textFormatter = { state, label ->
+                        if (state.isRunning) "Downloading ${(state.progress * 100).toInt()}%" else label
+                    },
                 )
                 TimerButton(
                     text = "Full-width CTA when you actually want one",
                     durationMillis = 7_000L,
                     modifier = Modifier.fillMaxWidth().height(54.dp),
                     colors = ShowcaseColors.primary(),
+                    textFormatter = { state, label ->
+                        if (state.isRunning) "CTA ${(state.progress * 100).toInt()}%" else label
+                    },
                 )
             }
         }
@@ -377,9 +401,33 @@ fun TimerButtonDemo(modifier: Modifier = Modifier) {
         item {
             DemoSection("Multiple Timers") {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    TimerButton("First timer", 3_000L, Modifier.width(152.dp).height(48.dp), colors = ShowcaseColors.primary())
-                    TimerButton("Second timer", 5_000L, Modifier.width(216.dp).height(56.dp), colors = ShowcaseColors.teal())
-                    TimerButton("Third timer", 7_000L, Modifier.width(180.dp).height(68.dp), colors = ShowcaseColors.amber())
+                    TimerButton(
+                        "First timer",
+                        3_000L,
+                        Modifier.width(152.dp).height(48.dp),
+                        colors = ShowcaseColors.primary(),
+                        textFormatter = { state, label ->
+                            if (state.isRunning) "First ${(state.remainingMillis + 999) / 1000}s" else label
+                        },
+                    )
+                    TimerButton(
+                        "Second timer",
+                        5_000L,
+                        Modifier.width(216.dp).height(56.dp),
+                        colors = ShowcaseColors.teal(),
+                        textFormatter = { state, label ->
+                            if (state.isRunning) "Second ${(state.remainingMillis + 999) / 1000}s" else label
+                        },
+                    )
+                    TimerButton(
+                        "Third timer",
+                        7_000L,
+                        Modifier.width(180.dp).height(68.dp),
+                        colors = ShowcaseColors.amber(),
+                        textFormatter = { state, label ->
+                            if (state.isRunning) "Third ${(state.remainingMillis + 999) / 1000}s" else label
+                        },
+                    )
                 }
             }
         }
