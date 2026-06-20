@@ -59,9 +59,11 @@ Maven Central can take 10 to 30 minutes before a published artifact is available
 
 ## Publish From GitHub Actions
 
-Update `CHANGELOG.md`, commit the release, then tag it:
+Update the version and `CHANGELOG.md`, commit the release, then tag it:
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v<version>
+git push origin v<version>
 ```
+
+Do not create a tag for a version that has already been published to Maven Central. Maven Central versions are immutable.

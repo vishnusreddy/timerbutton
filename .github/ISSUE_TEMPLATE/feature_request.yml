@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest a focused improvement for TimerButton.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What app flow or developer experience would this improve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What API, behavior, or documentation change would you like?
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: API surface
+      options:
+        - Compose
+        - XML/View
+        - Both
+        - Documentation
+        - Release/tooling
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Any workarounds or alternate designs you considered?

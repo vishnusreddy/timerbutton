@@ -1,5 +1,9 @@
 # TimerButton
 
+[![Maven Central](https://img.shields.io/maven-central/v/com.goeslocal/timerbutton.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/com.goeslocal/timerbutton)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Android](https://img.shields.io/badge/platform-Android-brightgreen.svg)](https://developer.android.com/)
+
 TimerButton is an Android library for Material-style buttons with elapsed-time progress. Use it for resend OTP cooldowns, retry waits, download or sync progress, hold-to-continue flows, and any UI where a button owns a short countdown.
 
 It supports both Android UI stacks:
@@ -28,7 +32,7 @@ Screenshots captured from the sample app on a physical Android device. The visib
 
 ## Install
 
-For local development in this repo:
+From Maven Central:
 
 ```kotlin
 dependencies {
@@ -295,11 +299,17 @@ Progress modes:
 
 ## More Documentation
 
-The README is the fast path. The full guide is here:
+The README is the fast path. More detail lives here:
 
-- [Implementation Guide](docs/implementation-guide.md)
+- [Usage Guide](docs/implementation-guide.md): Compose, XML, callbacks, lifecycle, testing, and production guidance.
+- [Roadmap](ROADMAP.md): upcoming work and non-goals.
+- [Contributing](CONTRIBUTING.md): local checks and release process.
+- [Wiki Pages](docs/wiki/README.md): advanced recipes, architecture notes, and media capture.
+- [Release Guide](docs/release.md): Maven Central setup for maintainers.
 
-It covers start modes, callbacks, every Compose parameter, every XML attribute, recipes, lifecycle behavior, accessibility, testing, media capture, and production guidance.
+## Upcoming
+
+Planned improvements include Compose previews for recipes, duration formatting helpers, runtime styling setters for `TimerButtonView`, expanded UI tests, and Dokka-generated API docs. See [Roadmap](ROADMAP.md).
 
 ## Production Guidance
 

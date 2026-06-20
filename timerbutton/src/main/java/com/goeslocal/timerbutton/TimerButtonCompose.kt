@@ -39,6 +39,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -265,7 +266,13 @@ fun TimerButton(
                 leadingIcon()
                 Box(Modifier.width(8.dp))
             }
-            Text(displayText, style = textStyle, color = contentColor)
+            Text(
+                text = displayText,
+                style = textStyle,
+                color = contentColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }
