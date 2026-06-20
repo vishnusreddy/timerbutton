@@ -1,6 +1,11 @@
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.SourcesJar
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.maven.publish)
 }
 
 android {
@@ -24,11 +29,64 @@ android {
 }
 
 dependencies {
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.core.ktx)
+    api(platform(libs.androidx.compose.bom))
+    api(libs.androidx.compose.material3)
+    api(libs.androidx.compose.ui)
+    api(libs.androidx.compose.ui.graphics)
+    api(libs.androidx.core.ktx)
 
     testImplementation(libs.junit)
+}
+
+val hasSigningCredentials = providers.gradleProperty("signingInMemoryKey").isPresent ||
+    providers.gradleProperty("signing.secretKeyRingFile").isPresent
+
+mavenPublishing {
+    coordinates(
+        groupId = "com.goeslocal",
+        artifactId = "timerbutton",
+        version = "0.1.0",
+    )
+
+    configure(
+        AndroidSingleVariantLibrary(
+            variant = "release",
+            sourcesJar = SourcesJar.Sources(),
+            javadocJar = JavadocJar.Empty(),
+        ),
+    )
+
+    publishToMavenCentral()
+    if (hasSigningCredentials) {
+        signAllPublications()
+    }
+
+    pom {
+        name.set("TimerButton")
+        description.set("Android library for Material-style buttons with elapsed-time progress.")
+        inceptionYear.set("2026")
+        url.set("https://github.com/vishnusreddy/timerbutton")
+
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                distribution.set("repo")
+            }
+        }
+
+        developers {
+            developer {
+                id.set("vishnusreddy")
+                name.set("Vishnu S Reddy")
+                url.set("https://github.com/vishnusreddy")
+            }
+        }
+
+        scm {
+            url.set("https://github.com/vishnusreddy/timerbutton")
+            connection.set("scm:git:git://github.com/vishnusreddy/timerbutton.git")
+            developerConnection.set("scm:git:ssh://git@github.com/vishnusreddy/timerbutton.git")
+        }
+    }
 }

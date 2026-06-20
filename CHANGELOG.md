@@ -1,0 +1,8 @@
+# Changelog
+
+## 0.1.0 - 2026-06-20
+
+- Initial Maven Central release of TimerButton.
+- Compose `TimerButton` and `rememberTimerButtonState` APIs.
+- XML/View `TimerButtonView` API.
+- Shared timer engine, lifecycle callbacks, progress directions, and progress modes.

@@ -32,15 +32,15 @@ For local development in this repo:
 
 ```kotlin
 dependencies {
-    implementation(project(":timerbutton"))
+    implementation("com.goeslocal:timerbutton:0.1.0")
 }
 ```
 
-When published, the dependency is intended to look like:
+For local development in this repo:
 
 ```kotlin
 dependencies {
-    implementation("com.goeslocal:timerbutton:<version>")
+    implementation(project(":timerbutton"))
 }
 ```
 
@@ -316,6 +316,14 @@ Run tests and checks:
 ```bash
 ./gradlew check
 ```
+
+Publish a release:
+
+```bash
+./gradlew publishAndReleaseToMavenCentral
+```
+
+See [Release Guide](docs/release.md) for Maven Central setup, signing, and GitHub Actions publishing.
 
 Regenerate README screenshots from a connected Android device:
 
