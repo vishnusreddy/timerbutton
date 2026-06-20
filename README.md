@@ -1,17 +1,17 @@
 # TimerButton
 
-TimerButton is a Kotlin-first Android library for Material-style buttons with timed progress. It gives Android teams one reusable component for “wait before retry”, “download in progress”, “hold for action”, “continue after countdown”, OTP resend, cooldown, and timed confirmation flows.
+TimerButton is an Android library for Material-style buttons with elapsed-time progress. Use it for resend OTP cooldowns, retry waits, download or sync progress, hold-to-continue flows, and any UI where a button owns a short countdown.
 
-The library supports both UI stacks:
+It supports both Android UI stacks:
 
 - Jetpack Compose: `TimerButton(...)` and `rememberTimerButtonState(...)`
 - XML/View apps: `TimerButtonView`
 
-The demo app in `:app` showcases Compose and XML usage. The reusable implementation lives in `:timerbutton`.
+The reusable implementation lives in `:timerbutton`. The `:app` module is a runnable demo for both Compose and XML.
 
-## Demo Media
+## Demo
 
-Screenshots captured from the sample app running on a physical Android device, with the visible timers active and the device bars cropped out.
+Screenshots captured from the sample app on a physical Android device. The visible timers are running and the device bars are cropped out.
 
 <table>
   <tr>
@@ -26,30 +26,7 @@ Screenshots captured from the sample app running on a physical Android device, w
   </tr>
 </table>
 
-## Why Use This
-
-Timer flows are easy to get subtly wrong. A button that owns a countdown needs to avoid UI-thread drift, double completion callbacks, leaks from long-running timers, stale Compose lambdas, and awkward state cleanup.
-
-TimerButton is built around a small monotonic-clock timer engine. UI progress is derived from elapsed real time, not from blindly subtracting a fixed amount every frame. If the main thread is delayed, the next tick recalculates from actual elapsed time and clamps progress to `0f..1f`.
-
-## Features
-
-- Compose and XML/View APIs
-- Start, pause, resume, cancel, reset, and restart
-- Accurate elapsed-real-time progress
-- `Idle`, `Running`, `Paused`, `Completed`, and `Cancelled` states
-- One-shot completion callback
-- `onTick`, lifecycle, and state change callbacks
-- Overlay, background, and underline progress modes
-- Left-to-right, right-to-left, top-to-bottom, and bottom-to-top progress directions
-- Natural wrap-content sizing and explicit width/height sizing
-- Full-width buttons when requested by the caller
-- Custom colors, alpha, shapes, borders, elevation, padding, text style, and icons
-- XML attributes for common configuration
-- Unit-tested timer engine with fake-clock tests
-- No `GlobalScope`, no static context references, and no retained Activity/Fragment references
-
-## Module Setup
+## Install
 
 For local development in this repo:
 
@@ -59,7 +36,7 @@ dependencies {
 }
 ```
 
-When published later, the dependency will look like:
+When published, the dependency is intended to look like:
 
 ```kotlin
 dependencies {
@@ -69,47 +46,62 @@ dependencies {
 
 ## Compose Quick Start
 
-The simplest usage starts the timer when the user taps the button:
+This starts automatically when the user taps the button:
 
 ```kotlin
-TimerButton(
-    text = "Start Timer",
-    durationMillis = 10_000L,
-    onTimerComplete = {
-        println("Timer completed")
-    }
-)
-```
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.goeslocal.timerbutton.TimerButton
 
-Use normal Compose sizing modifiers:
-
-```kotlin
-TimerButton(
-    text = "Compact",
-    durationMillis = 5_000L,
-    modifier = Modifier
-        .width(140.dp)
-        .height(44.dp)
-)
-
-TimerButton(
-    text = "Full width CTA",
-    durationMillis = 5_000L,
-    modifier = Modifier
-        .fillMaxWidth()
-        .height(56.dp)
-)
-```
-
-If you do not pass a width modifier, the button wraps its content like a normal Material button.
-
-## Compose State Usage
-
-Use `rememberTimerButtonState` when another control needs to start, pause, resume, cancel, reset, or restart the timer.
-
-```kotlin
 @Composable
-fun ResendOtp() {
+fun RetryButton() {
+    TimerButton(
+        text = "Retry",
+        durationMillis = 10_000L,
+        modifier = Modifier
+            .width(180.dp)
+            .height(52.dp),
+        onTimerComplete = {
+            println("Retry is available again")
+        },
+    )
+}
+```
+
+Use `textFormatter` when the label should describe the running state:
+
+```kotlin
+TimerButton(
+    text = "Resend OTP",
+    durationMillis = 30_000L,
+    textFormatter = { state, label ->
+        if (state.isRunning) {
+            "Resend in ${(state.remainingMillis + 999) / 1000}s"
+        } else {
+            label
+        }
+    },
+)
+```
+
+## Compose Controlled Timer
+
+Use `rememberTimerButtonState` when another control or business event starts, pauses, resumes, cancels, resets, or restarts the timer.
+
+```kotlin
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import com.goeslocal.timerbutton.TimerButton
+import com.goeslocal.timerbutton.TimerButtonConfig
+import com.goeslocal.timerbutton.rememberTimerButtonState
+
+@Composable
+fun ManualOtpCooldown() {
     val timerState = rememberTimerButtonState(durationMillis = 30_000L)
 
     Column {
@@ -118,388 +110,220 @@ fun ResendOtp() {
             text = "Resend OTP",
             config = TimerButtonConfig(
                 durationMillis = 30_000L,
-                clickStartsTimer = false
+                clickStartsTimer = false,
             ),
             textFormatter = { state, label ->
-                if (state.isRunning) {
+                if (state.isRunning || state.isPaused) {
                     "Resend in ${(state.remainingMillis + 999) / 1000}s"
                 } else {
                     label
                 }
             },
-            onTimerComplete = {
-                println("User can request another OTP")
-            }
         )
 
-        Button(onClick = { timerState.start() }) {
-            Text("Start")
-        }
-
-        Button(onClick = { timerState.cancel() }) {
-            Text("Cancel")
-        }
+        Button(onClick = { timerState.start() }) { Text("Start") }
+        Button(onClick = { timerState.pause() }) { Text("Pause") }
+        Button(onClick = { timerState.resume() }) { Text("Resume") }
+        Button(onClick = { timerState.cancel() }) { Text("Cancel") }
+        Button(onClick = { timerState.reset() }) { Text("Reset") }
+        Button(onClick = { timerState.restart() }) { Text("Restart") }
     }
 }
 ```
-
-## When Does The Timer Start?
-
-There are three common patterns.
-
-### 1. Start On Click
-
-This is the default. `clickStartsTimer = true`, so tapping the button starts the timer.
-
-```kotlin
-TimerButton(
-    text = "Download",
-    durationMillis = 8_000L
-)
-```
-
-### 2. Auto Start
-
-Use this for countdown screens or cooldowns that begin as soon as the composable enters the UI.
-
-```kotlin
-TimerButton(
-    text = "Please wait",
-    durationMillis = 10_000L,
-    config = TimerButtonConfig(
-        durationMillis = 10_000L,
-        autoStart = true
-    )
-)
-```
-
-### 3. Manual Start
-
-Use this when business logic decides when the timer starts, such as after a network request succeeds.
-
-```kotlin
-val state = rememberTimerButtonState(30_000L)
-
-TimerButton(
-    state = state,
-    text = "Resend OTP",
-    config = TimerButtonConfig(
-        durationMillis = 30_000L,
-        clickStartsTimer = false
-    )
-)
-
-LaunchedEffect(otpWasSentSuccessfully) {
-    if (otpWasSentSuccessfully) {
-        state.start()
-    }
-}
-```
-
-## Compose Lifecycle Behavior
-
-Compose timers are lifecycle-safe by construction:
-
-- Timer work runs inside `LaunchedEffect`.
-- The timer loop is cancelled when the composable leaves composition.
-- Timer state is saved with `rememberSaveable`, so Activity recreation from orientation changes does not restart an active timer.
-- `rememberUpdatedState` is used internally so callbacks do not become stale after recomposition.
-- No unmanaged global coroutine is launched.
-
-You do not need to manually clear the Compose timer when the screen is destroyed. Removing the composable cancels the running coroutine. On configuration changes, such as rotation, the state restores from a saved monotonic timestamp and continues from the correct elapsed time.
-
-This does not replace business-level persistence. If the app process is killed or the countdown is security-sensitive, store the authoritative timestamp in your ViewModel, repository, or backend policy.
-
-## Should I Put TimerButtonState In A ViewModel?
-
-Usually, no. `TimerButtonState` is UI state and is designed to be remembered inside Compose.
-
-Use local Compose state when:
-
-- The timer only affects this button.
-- The timer only needs to survive normal recomposition and configuration changes.
-- The timer is purely presentational, such as progress fill and remaining text.
-
-Use a ViewModel for business-level timing when:
-
-- The countdown must survive navigation away from the composable.
-- Multiple screens need the same remaining time.
-- The timer is tied to server state, OTP cooldown policy, billing, auth, or security behavior.
-- You need process-resilient behavior using saved timestamps.
-
-Recommended production pattern for important cooldowns:
-
-1. Store the authoritative start/end timestamp in your ViewModel or repository.
-2. Expose remaining time as UI state.
-3. Use `TimerButtonState` for the button rendering and user controls.
-4. On screen re-entry, restart or restore the UI timer from the authoritative remaining time.
-
-Do not put an Android `Context`, Activity, Fragment, or View reference in a ViewModel.
 
 ## Compose Customization
 
 ```kotlin
-TimerButton(
-    text = "Confirm",
-    durationMillis = 5_000L,
-    modifier = Modifier
-        .width(220.dp)
-        .height(56.dp),
-    shape = RoundedCornerShape(28.dp),
-    colors = TimerButtonColors(
-        containerColor = Color(0xFF0B6E4F),
-        contentColor = Color.White,
-        progressColor = Color(0xFFFFC857),
-        disabledContainerColor = Color.LightGray,
-        disabledContentColor = Color.DarkGray
-    ),
-    progressAlpha = 0.40f,
-    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
-    leadingIcon = {
-        Icon(Icons.Default.Download, contentDescription = null)
-    }
-)
-```
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.goeslocal.timerbutton.TimerButton
+import com.goeslocal.timerbutton.TimerButtonColors
+import com.goeslocal.timerbutton.TimerButtonConfig
+import com.goeslocal.timerbutton.TimerProgressDirection
+import com.goeslocal.timerbutton.TimerProgressMode
 
-## Progress Direction And Mode
-
-```kotlin
 TimerButton(
-    text = "Upload",
+    text = "Download report",
     durationMillis = 8_000L,
+    modifier = Modifier
+        .width(240.dp)
+        .height(56.dp),
     config = TimerButtonConfig(
         durationMillis = 8_000L,
         progressDirection = TimerProgressDirection.LeftToRight,
-        progressMode = TimerProgressMode.Overlay
-    )
+        progressMode = TimerProgressMode.Overlay,
+    ),
+    colors = TimerButtonColors(
+        containerColor = Color(0xFF172033),
+        contentColor = Color.White,
+        progressColor = Color(0xFF7DA2FF),
+        disabledContainerColor = Color(0xFFE5E7EB),
+        disabledContentColor = Color(0xFF6B7280),
+    ),
+    shape = RoundedCornerShape(18.dp),
+    border = BorderStroke(1.dp, Color(0xFF7DA2FF)),
+    progressAlpha = 0.42f,
+    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
+    leadingIcon = {
+        Text("D")
+    },
 )
 ```
 
-Directions:
+## XML Quick Start
 
-- `LeftToRight`
-- `RightToLeft`
-- `TopToBottom`
-- `BottomToTop`
-
-Modes:
-
-- `Overlay`: progress is drawn over the button surface.
-- `Background`: progress is drawn behind the content.
-- `Underline`: progress is drawn as a thin line.
-
-## Compose Callback Behavior
-
-```kotlin
-TimerButton(
-    text = "Retry",
-    durationMillis = 10_000L,
-    onClick = {
-        println("Button clicked")
-    },
-    onTimerStart = {
-        println("Started")
-    },
-    onTick = { remainingMillis, progress ->
-        println("remaining=$remainingMillis progress=$progress")
-    },
-    onTimerComplete = {
-        println("Completed once")
-    },
-    onTimerCancel = {
-        println("Cancelled")
-    },
-    onTimerPause = {
-        println("Paused")
-    },
-    onTimerResume = {
-        println("Resumed")
-    },
-    onTimerReset = {
-        println("Reset")
-    },
-    onTimerRestart = {
-        println("Restarted")
-    },
-    onStateChange = { status ->
-        println("State changed to $status")
-    }
-)
-```
-
-Callback rules:
-
-- `onTimerStart` fires when the timer starts from idle or cancelled.
-- `onTick` fires while running.
-- `onTimerComplete` fires once per completed run.
-- `onTimerCancel` fires only on explicit cancel.
-- `onTimerPause` fires only when a running timer pauses.
-- `onTimerResume` fires only when a paused timer resumes.
-- `onTimerReset` fires when reset returns the button to idle.
-- `onTimerRestart` fires when a timer is restarted from zero.
-- `onStateChange` fires when the public timer state changes.
-
-## XML Usage
+Add the namespace and place `TimerButtonView` in a normal XML layout:
 
 ```xml
-<com.goeslocal.timerbutton.TimerButtonView
-    android:id="@+id/resendButton"
-    android:layout_width="220dp"
-    android:layout_height="56dp"
-    android:text="Resend OTP"
-    app:timerDuration="30000"
-    app:timerProgressColor="@color/purple_500"
-    app:timerProgressAlpha="0.35"
-    app:timerProgressDirection="leftToRight"
-    app:timerProgressMode="overlay"
-    app:timerTextIdle="Resend OTP"
-    app:timerTextRunning="Resend in %ss"
-    app:timerTextCompleted="Resend now"
-    app:timerCornerRadius="18dp"
-    app:timerAutoStart="false"
-    app:timerClickStartsTimer="true"
-    app:timerAllowClickWhileRunning="false" />
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.goeslocal.timerbutton.TimerButtonView
+        android:id="@+id/resendButton"
+        android:layout_width="220dp"
+        android:layout_height="56dp"
+        android:text="Resend OTP"
+        android:textStyle="bold"
+        app:timerDuration="30000"
+        app:timerTextIdle="Resend OTP"
+        app:timerTextRunning="Resend in %ss"
+        app:timerTextCompleted="Resend now"
+        app:timerButtonBackgroundColor="#172033"
+        app:timerTextColor="#FFFFFF"
+        app:timerProgressColor="#7DA2FF"
+        app:timerProgressAlpha="0.45"
+        app:timerProgressDirection="leftToRight"
+        app:timerProgressMode="overlay"
+        app:timerCornerRadius="18dp"
+        app:timerAutoStart="false"
+        app:timerClickStartsTimer="true"
+        app:timerAllowClickWhileRunning="false" />
+</LinearLayout>
 ```
 
-## XML Kotlin Usage
+Wire lifecycle callbacks and manual controls from Kotlin:
 
 ```kotlin
-binding.resendButton.setDuration(30_000L)
+import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import com.goeslocal.timerbutton.TimerButtonListener
+import com.goeslocal.timerbutton.TimerButtonStatus
 
-binding.resendButton.setTimerListener(
-    object : TimerButtonListener {
-        override fun onTimerStart() {
-            // Disable related controls if needed.
-        }
+class OtpActivity : ComponentActivity() {
+    private lateinit var binding: OtpBinding
 
-        override fun onTick(remainingMillis: Long, progress: Float) {
-            // Update external labels if needed.
-        }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = OtpBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        override fun onTimerComplete() {
-            Toast.makeText(this@MainActivity, "Completed", Toast.LENGTH_SHORT).show()
-        }
+        binding.resendButton.setTimerListener(
+            object : TimerButtonListener {
+                override fun onTimerStart() {
+                    println("Cooldown started")
+                }
+
+                override fun onTick(remainingMillis: Long, progress: Float) {
+                    println("remaining=$remainingMillis progress=$progress")
+                }
+
+                override fun onTimerComplete() {
+                    Toast.makeText(this@OtpActivity, "Resend available", Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onStateChange(status: TimerButtonStatus) {
+                    println("Timer state=$status")
+                }
+            },
+        )
+
+        binding.startButton.setOnClickListener { binding.resendButton.start() }
+        binding.pauseButton.setOnClickListener { binding.resendButton.pause() }
+        binding.resumeButton.setOnClickListener { binding.resendButton.resume() }
+        binding.cancelButton.setOnClickListener { binding.resendButton.cancel() }
+        binding.resetButton.setOnClickListener { binding.resendButton.reset() }
+        binding.restartButton.setOnClickListener { binding.resendButton.restart() }
     }
-)
 
-binding.resendButton.start()
-```
-
-Available controls:
-
-```kotlin
-binding.resendButton.start()
-binding.resendButton.pause()
-binding.resendButton.resume()
-binding.resendButton.cancel()
-binding.resendButton.reset()
-binding.resendButton.restart()
-```
-
-## XML Lifecycle And Cleanup
-
-`TimerButtonView` removes its frame callbacks in `onDetachedFromWindow`. That covers normal Activity, Fragment, RecyclerView, and navigation teardown.
-
-The view does not store Activity or Fragment references. Your listener can still accidentally capture one, like any Android listener. For long-lived or manually retained views, call:
-
-```kotlin
-binding.resendButton.release()
-```
-
-Use `release()` when:
-
-- You keep a reference to the view outside the normal view hierarchy.
-- You set a listener that captures a Fragment binding.
-- You manually detach/reuse views.
-
-Typical Fragment cleanup:
-
-```kotlin
-override fun onDestroyView() {
-    binding.resendButton.release()
-    _binding = null
-    super.onDestroyView()
+    override fun onDestroy() {
+        binding.resendButton.release()
+        super.onDestroy()
+    }
 }
 ```
 
-If the view is only used in a normal layout and not retained anywhere, `onDetachedFromWindow` is normally enough.
+## Common Features
 
-## Accessibility
+Timer controls:
 
-TimerButton behaves like a button and exposes progress semantics in Compose. The XML view updates its content description with progress percentage.
+- `start()`: start from zero when idle or cancelled.
+- `pause()`: pause a running timer.
+- `resume()`: resume a paused timer.
+- `cancel()`: stop at the current progress and show idle text.
+- `reset()`: return to idle and zero progress.
+- `restart()`: start again from zero.
 
-Recommendations for app teams:
+Timer states:
 
-- Use text such as “Resend in 12s”, not color alone.
-- Keep contrast readable when using overlay progress.
-- Use `contentDescription` for icon-only usage.
-- Avoid tiny touch targets; prefer at least 48dp height/width for tappable production UI.
-- Respect disabled state for unavailable actions.
+- `Idle`
+- `Running`
+- `Paused`
+- `Completed`
+- `Cancelled`
 
-## Timer Accuracy
+Progress directions:
 
-The engine stores a monotonic start time and calculates:
+- Compose: `TimerProgressDirection.LeftToRight`, `RightToLeft`, `TopToBottom`, `BottomToTop`
+- XML: `leftToRight`, `rightToLeft`, `topToBottom`, `bottomToTop`
 
-```text
-elapsed = now - startedAt
-remaining = duration - elapsed
-progress = elapsed / duration
-```
+Progress modes:
 
-Progress is clamped between `0f` and `1f`. This avoids major drift if the UI thread skips frames.
+- Compose: `TimerProgressMode.Overlay`, `Background`, `Underline`
+- XML: `overlay`, `background`, `underline`
 
-## Testing
+## More Documentation
 
-Run library unit tests and build the demo:
+The README is the fast path. The full guide is here:
 
-```bash
-./gradlew :timerbutton:testDebugUnitTest :app:assembleDebug
-```
+- [Implementation Guide](docs/implementation-guide.md)
 
-The timer engine is unit-tested with a fake clock for:
-
-- start
-- completion
-- one-shot completion callback consumption
-- cancel
-- pause/resume
-- reset
-- restart
-- progress clamping
-- restore after Activity recreation/configuration change
-- multiple independent timer instances
-
-## Demo App
-
-The `:app` module demonstrates:
-
-- Natural-size Compose buttons
-- Fixed width/height buttons
-- Full-width CTA buttons
-- Compact, tall, pill, rounded, square-ish, and outlined styles
-- Custom colors and padding
-- Icon content
-- OTP/resend formatting
-- Pause/resume controls
-- Cancel/reset/restart controls
-- Progress directions
-- Progress modes
-- Multiple independent timers
-- XML `TimerButtonView`
+It covers start modes, callbacks, every Compose parameter, every XML attribute, recipes, lifecycle behavior, accessibility, testing, media capture, and production guidance.
 
 ## Production Guidance
 
-For simple UI countdowns, use `TimerButton` directly.
+TimerButton is a UI component. For important rules such as OTP cooldowns, billing windows, auth lockouts, or server-enforced retry limits, store the authoritative timestamp in your ViewModel, repository, or backend. Use TimerButton to render the visible countdown.
 
-For important app rules, such as OTP retry windows, do not rely only on a visual timer. Store the real cooldown timestamp in your domain layer or ViewModel, validate it against server policy, and use TimerButton to present the countdown.
+Compose state is saved across recomposition and normal Activity recreation. It is not a substitute for process-death persistence or server policy.
 
-For Compose screens, prefer `rememberTimerButtonState` for UI-level timers. It survives recomposition and configuration changes. Use your ViewModel or domain layer for timers that must survive navigation away from the screen, process death, or server-enforced cooldown rules.
+`TimerButtonView` clears animation callbacks when detached. If a Fragment binding or listener may outlive the view, call `release()` in `onDestroyView`.
 
-For XML screens, avoid retaining listener objects longer than the view lifecycle. Call `release()` in `onDestroyView` if your Fragment binding pattern benefits from explicit cleanup.
+## Development
 
-## Contributing
+Run tests and checks:
 
-Keep public APIs small and predictable. Add fake-clock tests for timer behavior changes. Avoid new dependencies unless they clearly improve reliability or developer experience.
+```bash
+./gradlew check
+```
+
+Regenerate README screenshots from a connected Android device:
+
+```bash
+python3 scripts/capture_readme_media.py
+```
+
+If your system Python does not have Pillow, use the bundled Codex runtime Python or install Pillow in your local environment.
 
 ## License
 

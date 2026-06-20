@@ -279,7 +279,12 @@ class TimerButtonView @JvmOverloads constructor(
         val progress = engine.progress.coerceIn(0f, 1f)
         if (progressMode == TimerProgressMode.Underline) {
             val underlineHeight = dp(4f)
-            progressBounds.set(0f, height - underlineHeight, width * progress, height.toFloat())
+            when (progressDirection) {
+                TimerProgressDirection.LeftToRight -> progressBounds.set(0f, height - underlineHeight, width * progress, height.toFloat())
+                TimerProgressDirection.RightToLeft -> progressBounds.set(width * (1f - progress), height - underlineHeight, width.toFloat(), height.toFloat())
+                TimerProgressDirection.TopToBottom -> progressBounds.set(0f, 0f, underlineHeight, height * progress)
+                TimerProgressDirection.BottomToTop -> progressBounds.set(0f, height * (1f - progress), underlineHeight, height.toFloat())
+            }
             return
         }
 
