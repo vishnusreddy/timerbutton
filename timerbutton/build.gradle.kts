@@ -63,7 +63,7 @@ mavenPublishing {
 
     pom {
         name.set("TimerButton")
-        description.set("Android library for Material-style buttons with elapsed-time progress.")
+        description.set("A Compose and XML Android timer button that renders countdown progress, lifecycle-aware callbacks, and customizable cooldown states for OTP, retry, sync, and temporary action waits.")
         inceptionYear.set("2026")
         url.set("https://github.com/vishnusreddy/timerbutton")
 
