@@ -3,7 +3,9 @@
 TimerButton publishes to Maven Central as:
 
 ```kotlin
-implementation("com.goeslocal:timerbutton:0.1.0")
+implementation("com.goeslocal:timerbutton-compose:<version>")
+implementation("com.goeslocal:timerbutton-view:<version>")
+implementation("com.goeslocal:timerbutton:<version>") // compatibility bundle
 ```
 
 ## One-Time Setup
@@ -46,7 +48,7 @@ SIGNING_PASSWORD
 ## Verify Locally
 
 ```bash
-./gradlew clean :timerbutton:testDebugUnitTest :timerbutton:assembleRelease :timerbutton:publishToMavenLocal
+./gradlew clean :timerbutton-core:testDebugUnitTest :timerbutton-compose:assembleRelease :timerbutton-view:assembleRelease :timerbutton:publishToMavenLocal
 ```
 
 ## Publish Manually

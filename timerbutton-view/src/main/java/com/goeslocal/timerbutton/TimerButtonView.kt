@@ -10,8 +10,7 @@ import android.text.format.DateUtils
 import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.TextView
-import androidx.core.content.withStyledAttributes
-import com.goeslocal.timerbutton.lib.R
+import com.goeslocal.timerbutton.view.R
 import kotlin.math.roundToInt
 
 /**
@@ -77,24 +76,27 @@ class TimerButtonView @JvmOverloads constructor(
         minHeight = dp(48f).roundToInt()
         setPadding(dp(16f).roundToInt(), paddingTop, dp(16f).roundToInt(), paddingBottom)
 
-        context.withStyledAttributes(attrs, R.styleable.TimerButtonView, defStyleAttr, 0) {
-            setDuration(getInt(R.styleable.TimerButtonView_timerDuration, 10_000).toLong())
-            progressColor = getColor(R.styleable.TimerButtonView_timerProgressColor, progressColor)
-            progressAlpha = getFloat(R.styleable.TimerButtonView_timerProgressAlpha, progressAlpha)
-            progressDirection = directionFromOrdinal(getInt(R.styleable.TimerButtonView_timerProgressDirection, 0))
-            progressMode = modeFromOrdinal(getInt(R.styleable.TimerButtonView_timerProgressMode, 0))
-            autoStart = getBoolean(R.styleable.TimerButtonView_timerAutoStart, false)
-            clickStartsTimer = getBoolean(R.styleable.TimerButtonView_timerClickStartsTimer, true)
-            allowClickWhileRunning = getBoolean(R.styleable.TimerButtonView_timerAllowClickWhileRunning, false)
-            idleText = getString(R.styleable.TimerButtonView_timerTextIdle)
-            runningText = getString(R.styleable.TimerButtonView_timerTextRunning)
-            completedText = getString(R.styleable.TimerButtonView_timerTextCompleted)
-            cornerRadius = getDimension(R.styleable.TimerButtonView_timerCornerRadius, cornerRadius)
-            strokeColor = getColor(R.styleable.TimerButtonView_timerStrokeColor, strokeColor)
-            strokeWidth = getDimension(R.styleable.TimerButtonView_timerStrokeWidth, strokeWidth)
-            backgroundColor = getColor(R.styleable.TimerButtonView_timerButtonBackgroundColor, backgroundColor)
-            disabledColor = getColor(R.styleable.TimerButtonView_timerButtonDisabledColor, disabledColor)
-            userTextColor = getColor(R.styleable.TimerButtonView_timerTextColor, currentTextColor)
+        val styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.TimerButtonView, defStyleAttr, 0)
+        try {
+            setDuration(styledAttributes.getInt(R.styleable.TimerButtonView_timerDuration, 10_000).toLong())
+            progressColor = styledAttributes.getColor(R.styleable.TimerButtonView_timerProgressColor, progressColor)
+            progressAlpha = styledAttributes.getFloat(R.styleable.TimerButtonView_timerProgressAlpha, progressAlpha)
+            progressDirection = directionFromOrdinal(styledAttributes.getInt(R.styleable.TimerButtonView_timerProgressDirection, 0))
+            progressMode = modeFromOrdinal(styledAttributes.getInt(R.styleable.TimerButtonView_timerProgressMode, 0))
+            autoStart = styledAttributes.getBoolean(R.styleable.TimerButtonView_timerAutoStart, false)
+            clickStartsTimer = styledAttributes.getBoolean(R.styleable.TimerButtonView_timerClickStartsTimer, true)
+            allowClickWhileRunning = styledAttributes.getBoolean(R.styleable.TimerButtonView_timerAllowClickWhileRunning, false)
+            idleText = styledAttributes.getString(R.styleable.TimerButtonView_timerTextIdle)
+            runningText = styledAttributes.getString(R.styleable.TimerButtonView_timerTextRunning)
+            completedText = styledAttributes.getString(R.styleable.TimerButtonView_timerTextCompleted)
+            cornerRadius = styledAttributes.getDimension(R.styleable.TimerButtonView_timerCornerRadius, cornerRadius)
+            strokeColor = styledAttributes.getColor(R.styleable.TimerButtonView_timerStrokeColor, strokeColor)
+            strokeWidth = styledAttributes.getDimension(R.styleable.TimerButtonView_timerStrokeWidth, strokeWidth)
+            backgroundColor = styledAttributes.getColor(R.styleable.TimerButtonView_timerButtonBackgroundColor, backgroundColor)
+            disabledColor = styledAttributes.getColor(R.styleable.TimerButtonView_timerButtonDisabledColor, disabledColor)
+            userTextColor = styledAttributes.getColor(R.styleable.TimerButtonView_timerTextColor, currentTextColor)
+        } finally {
+            styledAttributes.recycle()
         }
         defaultText = text?.toString().orEmpty()
         setTextColor(userTextColor)

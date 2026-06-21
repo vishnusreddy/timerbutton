@@ -6,7 +6,11 @@ This guide is the practical reference for using TimerButton in production apps. 
 
 ```kotlin
 dependencies {
-    implementation("com.goeslocal:timerbutton:0.1.0")
+    implementation("com.goeslocal:timerbutton-compose:0.2.0") // Compose
+    implementation("com.goeslocal:timerbutton-view:0.2.0")    // XML/View
+
+    // Or use the compatibility bundle when you want both APIs:
+    implementation("com.goeslocal:timerbutton:0.2.0")
 }
 ```
 
@@ -14,7 +18,8 @@ For local development inside this repository:
 
 ```kotlin
 dependencies {
-    implementation(project(":timerbutton"))
+    implementation(project(":timerbutton-compose"))
+    implementation(project(":timerbutton-view"))
 }
 ```
 
@@ -24,6 +29,8 @@ TimerButton has two public surfaces:
 
 - Compose: `TimerButton(...)` and `rememberTimerButtonState(...)`
 - XML/View: `TimerButtonView`
+
+They are published separately so Compose-only apps do not pull XML-only code, and XML-only apps do not pull Compose dependencies. The original `timerbutton` artifact remains as a compatibility bundle that depends on both split artifacts.
 
 Progress is calculated from a monotonic clock:
 
@@ -237,7 +244,7 @@ Run:
 Focused library tests:
 
 ```bash
-./gradlew :timerbutton:testDebugUnitTest
+./gradlew :timerbutton-core:testDebugUnitTest
 ```
 
 The timer engine has fake-clock coverage for start, completion, one-shot completion delivery, cancel, pause/resume, reset, restart, clamping, restore after Activity recreation, and independent timer instances.

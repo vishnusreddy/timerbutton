@@ -34,7 +34,14 @@ Screenshots are captured from the sample app on a physical Android device while 
 
 ```kotlin
 dependencies {
-    implementation("com.goeslocal:timerbutton:0.1.0")
+    // Compose-only apps
+    implementation("com.goeslocal:timerbutton-compose:0.2.0")
+
+    // XML/View-only apps
+    implementation("com.goeslocal:timerbutton-view:0.2.0")
+
+    // Compatibility bundle when you want both APIs from one dependency
+    implementation("com.goeslocal:timerbutton:0.2.0")
 }
 ```
 
@@ -42,9 +49,12 @@ For local development in this repo:
 
 ```kotlin
 dependencies {
-    implementation(project(":timerbutton"))
+    implementation(project(":timerbutton-compose"))
+    implementation(project(":timerbutton-view"))
 }
 ```
+
+The package name stays the same for all artifacts: `com.goeslocal.timerbutton`. Splitting artifacts only changes the Gradle dependency you choose.
 
 ## Compose: Minimal Usage
 

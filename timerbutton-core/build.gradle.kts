@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.goeslocal.timerbutton.lib"
+    namespace = "com.goeslocal.timerbutton.core"
     compileSdk = 37
 
     defaultConfig {
@@ -21,12 +21,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-
 }
 
 dependencies {
-    api(project(":timerbutton-compose"))
-    api(project(":timerbutton-view"))
+    testImplementation(libs.junit)
 }
 
 val hasSigningCredentials = providers.gradleProperty("signingInMemoryKey").isPresent ||
@@ -35,7 +33,7 @@ val hasSigningCredentials = providers.gradleProperty("signingInMemoryKey").isPre
 mavenPublishing {
     coordinates(
         groupId = "com.goeslocal",
-        artifactId = "timerbutton",
+        artifactId = "timerbutton-core",
         version = "0.2.0",
     )
 
@@ -53,8 +51,8 @@ mavenPublishing {
     }
 
     pom {
-        name.set("TimerButton")
-        description.set("Compatibility bundle for TimerButton Compose and TimerButton View. Prefer timerbutton-compose for Compose-only apps or timerbutton-view for XML-only apps.")
+        name.set("TimerButton Core")
+        description.set("Shared timer state, progress directions, progress modes, and countdown engine used by TimerButton Compose and XML artifacts.")
         inceptionYear.set("2026")
         url.set("https://github.com/vishnusreddy/timerbutton")
 

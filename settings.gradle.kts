@@ -25,4 +25,7 @@ dependencyResolutionManagement {
 rootProject.name = "timerbutton"
 include(":app")
 include(":timerbutton")
+include(":timerbutton-core")
+include(":timerbutton-compose")
+include(":timerbutton-view")
  

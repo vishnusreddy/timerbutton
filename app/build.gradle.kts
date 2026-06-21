@@ -34,7 +34,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":timerbutton"))
+    implementation(project(":timerbutton-compose"))
+    implementation(project(":timerbutton-view"))
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)

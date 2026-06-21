@@ -2,7 +2,7 @@
 
 TimerButton is intentionally small:
 
-- `TimerButtonEngine` is an internal, fake-clock-tested state machine.
+- `TimerButtonEngine` is a fake-clock-tested state machine in `timerbutton-core`.
 - Compose and XML surfaces share the same state transitions.
 - Progress is calculated from elapsed real time, not by subtracting fixed tick intervals.
 - Public API stays focused on UI behavior: state, callbacks, styling, and progress rendering.
@@ -26,9 +26,9 @@ stateDiagram-v2
     Paused --> Idle: reset
 ```
 
-## Why The Engine Is Internal
+## Why There Is A Core Artifact
 
-The engine exists to keep behavior testable and shared between Compose and XML. It is not part of the supported public API. Public consumers should use `TimerButtonState` or `TimerButtonView`.
+The engine exists to keep behavior testable and shared between Compose and XML without duplicating classes across artifacts. Public consumers should use `TimerButtonState` or `TimerButtonView`; `timerbutton-core` is published so `timerbutton-compose` and `timerbutton-view` can share the same timer state model safely.
 
 ## Versioning
 

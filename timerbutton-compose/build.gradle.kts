@@ -4,11 +4,12 @@ import com.vanniktech.maven.publish.SourcesJar
 
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.maven.publish)
 }
 
 android {
-    namespace = "com.goeslocal.timerbutton.lib"
+    namespace = "com.goeslocal.timerbutton.compose"
     compileSdk = 37
 
     defaultConfig {
@@ -22,11 +23,17 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    buildFeatures {
+        compose = true
+    }
 }
 
 dependencies {
-    api(project(":timerbutton-compose"))
-    api(project(":timerbutton-view"))
+    api(project(":timerbutton-core"))
+    api(platform(libs.androidx.compose.bom))
+    api(libs.androidx.compose.ui)
+    api(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.material3)
 }
 
 val hasSigningCredentials = providers.gradleProperty("signingInMemoryKey").isPresent ||
@@ -35,7 +42,7 @@ val hasSigningCredentials = providers.gradleProperty("signingInMemoryKey").isPre
 mavenPublishing {
     coordinates(
         groupId = "com.goeslocal",
-        artifactId = "timerbutton",
+        artifactId = "timerbutton-compose",
         version = "0.2.0",
     )
 
@@ -53,8 +60,8 @@ mavenPublishing {
     }
 
     pom {
-        name.set("TimerButton")
-        description.set("Compatibility bundle for TimerButton Compose and TimerButton View. Prefer timerbutton-compose for Compose-only apps or timerbutton-view for XML-only apps.")
+        name.set("TimerButton Compose")
+        description.set("Jetpack Compose timer button with countdown progress, saveable timer state, lifecycle-aware callbacks, and customizable cooldown styling.")
         inceptionYear.set("2026")
         url.set("https://github.com/vishnusreddy/timerbutton")
 

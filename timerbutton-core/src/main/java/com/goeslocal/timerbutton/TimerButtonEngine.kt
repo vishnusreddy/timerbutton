@@ -3,14 +3,14 @@ package com.goeslocal.timerbutton
 /**
  * Monotonic clock abstraction used by [TimerButtonEngine].
  */
-internal fun interface TimerClock {
+fun interface TimerClock {
     fun nowMillis(): Long
 }
 
 /**
  * Testable timer state machine based on elapsed real time instead of decrementing ticks.
  */
-internal class TimerButtonEngine(
+class TimerButtonEngine(
     durationMillis: Long,
     private val clock: TimerClock,
 ) {
@@ -33,7 +33,7 @@ internal class TimerButtonEngine(
     private var pausedAtElapsedMillis = 0L
     private var completionDelivered = false
 
-    internal fun snapshot(): TimerButtonEngineSnapshot {
+    fun snapshot(): TimerButtonEngineSnapshot {
         tick()
         return TimerButtonEngineSnapshot(
             durationMillis = durationMillis,
@@ -45,7 +45,7 @@ internal class TimerButtonEngine(
         )
     }
 
-    internal fun restore(snapshot: TimerButtonEngineSnapshot) {
+    fun restore(snapshot: TimerButtonEngineSnapshot) {
         durationMillis = snapshot.durationMillis.coerceAtLeast(1L)
         startedAtMillis = snapshot.startedAtMillis
         pausedAtElapsedMillis = snapshot.pausedAtElapsedMillis.coerceIn(0L, durationMillis)
@@ -138,7 +138,7 @@ internal class TimerButtonEngine(
     }
 }
 
-internal data class TimerButtonEngineSnapshot(
+data class TimerButtonEngineSnapshot(
     val durationMillis: Long,
     val status: TimerButtonStatus,
     val elapsedMillis: Long,
